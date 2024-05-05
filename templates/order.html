@@ -1,0 +1,133 @@
+{% extends "layout.html" %} {% block body %}
+<div class="container-fluid px-0 top-banner" style="background: url('static/cart.png') no-repeat center; width: 100%; background-size: cover; padding: 12.875rem 0 9.375rem; min-height: 800px;">
+    <div class="container">
+        <div class="row" style="margin-left: 10%;">
+            <h3 style="color: #e5f409; margin-bottom: 3%">Please note that the delivery charges for orders below ₹500 is ₹40 and above ₹500 is ₹20</h3>
+        </div>
+    </div>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <h2>Enter Your Address Details</h2>
+                <form class="form-group" method="POST" action="/cash">
+                    <div class="md-9" style="width: 150%; color: rgb(237, 241, 12)">
+                        <label for="name" style="color: rgb(0, 0, 0)">Name:</label>
+                        <input type="text" id="name" placeholder="Enter your Name" class="form-control" name="name" required>
+                        <h5 class="error" for="name"></h5>
+                    </div>
+                    <div class="md-9" style="width: 150%; color: rgb(0, 0, 0)">
+                        <label for="phone" style="color: rgb(0, 0, 0)">Phone No.:</label>
+                        <input type="text" id="phone" placeholder="Enter your Phone No." class="form-control" name="phone" required>
+                    </div>
+                    <div class="md-9" style="width: 150%; padding-top: 2%; color: rgb(237, 241, 12)">
+                        <label for="address" style="color: rgb(0, 0, 0)">Village:</label>
+                        <select name="address" id="address" class="form-control">
+                            <option value="">Select Village</option>
+                            <option value="bachini">Bachini</option>
+                            <option value="gagarwas">Gagarwas</option>
+                            <option value="bawania">Bawania</option>
+                            <option value="nangle">Nangle Harnath</option>
+                        </select>
+                    </div>
+                    <div class="md-9" style="width: 150%; padding-top: 2%; color: rgb(237, 241, 12)">
+                        <label for="email" style="color: rgb(0, 0, 0)">E-mail (Optional):</label>
+                        <input type="text" id="email" placeholder="Enter your E-mail (Optional)" class="form-control" name="email">
+                    </div>
+                    <div class="md-9" style="width: 150%; padding-top: 2%; color: rgb(237, 241, 12)">
+                        <label for="landmark" style="color: rgb(0, 0, 0)">Nearby Landmark(Optional):</label>
+                        <input type="text" id="landmark" placeholder="Enter Nearby Landmark (Optional)" class="form-control" name="landmark">
+                    </div>
+                    <div class="md-9" style="width: 150%; padding-top: 4%; color: rgb(237, 241, 12)">
+                        <button type="submit" class="btn btn-success m-auto" style="border-radius: 7px; width: 50%;">Pay Now</button>
+                    </div>
+                </form>
+            </div>
+            <div class="col-md-6">
+                <div id="order-summary">
+                    <h2>Order Summary</h2>
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Item Name</th>
+                                <th>Quantity</th>
+                                <th>Price</th>
+                                <th>Total Price</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in cart_items %}
+                            <tr>
+                                <td>{{ item.name }}</td>
+                                <td>{{ item.quantity }}</td>
+                                <td>₹{{ item.price }}</td>
+                                <td>₹{{ item.totalPrice }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="3">Delivery Charges:</td>
+                                <td id="delivery-charges">₹{{ delivery_charges }}</td>
+                            </tr>
+                            <tr>
+                                <td colspan="3">Total:</td>
+                                <td id="cart-total">{{ cartTotal }}</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Retrieve cart data from localStorage
+        const cartTotal = localStorage.getItem('cartTotal');
+        const cartItemsJSON = localStorage.getItem('cartItems');
+        const cartItems = JSON.parse(cartItemsJSON);
+
+        // Add console.log statements to print the cartTotal and cartItems
+        console.log('Cart Total:', cartTotal);
+        console.log('Cart Items:', cartItems);
+
+        // Calculate delivery charges based on the total value
+        let deliveryCharges = 0;
+        if (cartTotal) {
+            const totalValue = parseFloat(cartTotal.replace('₹', ''));
+            if (totalValue >= 500) {
+                deliveryCharges = 20;
+            } else if (totalValue < 500 && totalValue <= 1000) {
+                deliveryCharges = 40;
+            } else {
+                deliveryCharges = 0;
+            }
+
+            // Display delivery charges and updated cart total
+            const deliveryChargesCell = document.querySelector('#delivery-charges');
+            const cartTotalCell = document.querySelector('#cart-total');
+            deliveryChargesCell.textContent = `₹${deliveryCharges.toFixed(2)}`;
+            cartTotalCell.textContent = `₹${(totalValue + deliveryCharges).toFixed(2)}`;
+        }
+
+        // Display cart items
+        const orderTableBody = document.querySelector('table tbody');
+        if (cartItems) {
+            cartItems.forEach(item => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                <td>${item.name}</td>
+                <td>${item.quantity}</td>
+                <td>₹${item.price.toFixed(2)}</td>
+                <td>₹${item.totalPrice.toFixed(2)}</td>
+                `;
+                orderTableBody.appendChild(row);
+            });
+        } else {
+            orderTableBody.innerHTML = '<tr><td colspan="4">No items selected.</td></tr>';
+        }
+    });
+</script>
+
+{% endblock %}

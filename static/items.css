@@ -1,0 +1,94 @@
+/* .cart-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 3%;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 10px;
+} */
+
+
+/* .cart-item img {
+    max-width: 80px;
+    margin-right: 15px;
+} */
+
+.card {
+    max-width: 70%;
+    margin: 0%;
+}
+
+
+/* Style for the container of each item */
+
+.cart-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 2%;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 1%;
+}
+
+
+/* Style for the item image */
+
+.cart-item img {
+    max-width: 100px;
+    /* Adjust the max-width as needed */
+    margin-right: 10px;
+}
+
+
+/* Style for the item details (name, price, quantity, and "Add to Cart" button) */
+
+.item-details {
+    flex: 1;
+    /* Takes remaining space in the container */
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+
+/* Style for the item name */
+
+.item-name {
+    flex: 1;
+    /* Takes the maximum available width */
+    font-size: 1.3rem;
+    margin-bottom: 5px;
+}
+
+
+/* Style for the item price */
+
+.item-price {
+    flex: 1;
+    /* Takes the maximum available width */
+    margin-bottom: 5px;
+}
+
+
+/* Style for the item quantity input and "Add to Cart" button */
+
+.item-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+
+/* Style for the quantity input */
+
+.quantity-input {
+    width: 60px;
+    /* Adjust the width as needed */
+    margin-right: 5px;
+}
+
+
+/* Style for the "Add to Cart" button */
+
+.add-to-cart {
+    width: 100px;
+    /* Adjust the width as needed */
+}

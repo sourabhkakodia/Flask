@@ -1,0 +1,65 @@
+<!Doctype html>
+<html>
+
+<head>
+    <title> Piyush Mini mart </title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename ='style.css')}}">
+</head>
+
+<body style="font-size: 18px; min-height:750px;">
+    <header>
+        <div class="container-fluid" style="background: #A82C48;">
+            <div class="collapse navbar-collapse" id="navbarExample01">
+                <div class="row">
+                    <div class="col-md-3">
+                        <img src="{{ url_for('static', filename = 'mini mart logo.jpg')}}" width="250px" height="155px">
+                        </button>
+                    </div>
+                    <div class="col-md-9">
+                        <a href="/" style="float: right;margin-top: 20px; background-color:0c477f; border-color: 0c477f;" class="btn btn-primary">Main Website</a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </header>
+    <div class="container-fluid">
+        <div class="msg" style="margin-left:42%; margin-top:1%; color:Red">{{msg}}</div>
+    </div>
+    <div class="container-fluid" id="main">
+        <form id="admin" action="/admin" method="post">
+            <div class="form-group">
+                <i class="fa fa-user icon" style="color:white"></i>
+                <label for="username"> Username : </label>
+                <input type="text" class="form-control" placeholder="Enter your Username" id="username" name="username" style="color:black; width:100%;" required>
+            </div>
+            <div class="form-group">
+                <i class="fa fa-key icon" style="color:white; width:16px;"></i>
+                <label for="password"> Password :</label>
+                <input type="text" class="form-control" placeholder="Enter your Password" id="password" name="password" style="color:black; width:100%;" required>
+            </div>
+            <!-- <div class="cb">
+                <i class="fa fa-save" style="color:white"></i>
+                <label for="remember"> Remember me</label>
+                <input type="checkbox" id="remember" name="remember">
+            </div> -->
+            <div class="form-group">
+                <button class="btn btn-success m-auto" type="submit" style="width:100%; border-radius: 7px; margin-bottom: 10px; margin-top:3%">SignIn</button>
+            </div>
+        </form>
+    </div>
+    <footer id="footer" class="text-center text-lg-start bg-light text-muted ">
+        <div class="text-center text-white p-4 " style="background-color:#A82C48; position:fixed; bottom:0; width:100%; color:white;">
+            This Website is Developed by: Sourabh Kakodia @All Rights Reserved
+        </div>
+    </footer>
+    <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.3/jquery.validate.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.3/additional-methods.min.js"></script>
+    <script src="http://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+</body>
+
+</html>

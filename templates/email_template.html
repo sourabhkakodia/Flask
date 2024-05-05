@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Confirmation</title>
+</head>
+
+<body>
+    <h2>Order Confirmation</h2>
+
+    <h3>Customer Information:</h3>
+    <p><strong>Name:</strong> {{ name }}</p>
+    <p><strong>Phone:</strong> {{ phone }}</p>
+    <p><strong>Email:</strong> {{ email }}</p>
+    <p><strong>Address:</strong> {{ village }}</p>
+
+    <h3>Order Summary:</h3>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Item Name</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Total Price</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in cartItems %}
+            <tr>
+                <td>{{ item.name }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>₹{{ item.price }}</td>
+                <td>₹{{ item.totalPrice }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="3">Delivery Charges:</td>
+                <td>₹{{ delivery_charges }}</td>
+            </tr>
+            <tr>
+                <td colspan="3">Total:</td>
+                <td>{{ cartTotal }}</td>
+            </tr>
+        </tfoot>
+    </table>
+</body>
+
+</html>

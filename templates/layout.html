@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="Description" content="Enter your description here" />
+    <title>Piyush Mini Mart</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    <title>Items Cart</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename ='style.css')}}">
+    <link rel="stylesheet" href="{{ url_for('static', filename ='responsive-style.css')}}">
+    <link rel="stylesheet" href="{{ url_for('static', filename ='items.css')}}">
+</head>
+
+<body>
+    <!-- header disign-->
+    <header>
+        <nav class="navbar navbar-expand-lg navigation-wrap">
+            <div class="container-fluid" style="background-color:#A82C48">
+                <a class="navbar-brand" href="/about"><img src="{{ url_for('static', filename = 'mini mart logo.jpg')}}"></a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
+                <i class="fas fa-stream navbar-toggler-icon"></i>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarText">
+                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="/">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/about">About Us</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/items">Buy Products</a>
+                        </li>
+                        <!-- <li class="nav-item">
+                            <a class="nav-link" href="/review">Reviews</a>
+                        </li> -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin" target="_blank">Admin</a>
+                        </li>
+                        <li><a href="tel:9050204343"><button class="main-btn"> Call Us</button></a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+
+    {% block body %} {% endblock %}
+
+
+    <footer id="footer" class="text-center text-lg-start bg-light text-muted ">
+        <div class="text-center text-white p-4 " style="background-color:#A82C48; position:fixed; bottom:0; width:100%; padding:0.7rem !important;">
+            {{params['dev_info']}}
+        </div>
+    </footer>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.19.0/jquery.validate.min.js"></script>
+    <script src="{{ url_for('static', filename = 'main.js')}}"></script>
+
+    <!-- order page javascript for address input form -->
+    <script>
+        $(document).ready(function() {
+            $('/order').validate({
+
+                rules: {
+                    name: {
+                        required: true
+                    },
+                    phone: {
+                        required: true
+                    },
+                    village: {
+                        required: true
+                    },
+
+                },
+                messages: {
+                    name: "Please enter name",
+                    phone: {
+                        required: "Please enter phone no."
+                    },
+                    village: {
+                        required: "Please select village"
+                    },
+
+
+                },
+                submitHandler: function(form) {
+                    form.submit();
+                }
+
+            });
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,30 @@
+{% extends "layout.html" %} {% block body %}
+<div class="container-fluid px-0 top-banner" style="background-image: url('/static/edit.jpg'); background-size: cover; padding: 16.875rem 0 9.375rem; min-height: 800px; width:100%;">
+    <div class="container-fluid">
+        <div class="row">
+            <form class="form-group" id="edit" action="/edit/{{item.Sno}}" method="POST">
+                <div class="md-9" style="width:60%; color:rgb(0, 0, 0)">
+                    <label for="name"><strong> Item Name : </strong></label>
+                    <input type="text" id="Name" placeholder="Enter Item Name" class="form-control" name="Name" value="{{item.Name}}">
+                    <h5 class="error" for="name"> </h5>
+                </div>
+                <div class="md-9" style="padding-top:0.5%; width:60%; color:rgb(0, 0, 0)">
+                    <label for="Price"><strong> Price :</strong></label>
+                    <input type="text" id="Price" placeholder="Enter Price" class="form-control" name="Price" value="{{item.Price}}">
+                </div>
+                <div class="md-9" style="padding-top:1%; width:60%;color:rgb(0, 0, 0)">
+                    <label for="image_url"><strong>Enter the image URL(.jpg or .png format only)</strong></label>
+                    <input type="text" id="image_url" name="image_url" placeholder="Enter the Image URL here" class="form-control" value="{{item.image_url}}">
+                </div>
+                <div class="md-9" style="padding-top:1%; width:60%;color:rgb(0, 0, 0)">
+                    <label for="Quantity"><strong>Quantity</strong></label>
+                    <input type="text" id="Quantity" name="Quantity" placeholder="Enter the Quantity here" class="form-control" value="{{item.Quantity}}">
+                </div>
+                <div class="md-9" style="padding-top:2%; width:30%">
+                    <button type="submit" class="btn btn-success m-auto" style="width:50%; border-radius: 7px;">Update</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

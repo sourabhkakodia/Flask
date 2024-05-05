@@ -1,0 +1,130 @@
+{% extends "layout.html" %} {% block body %}
+<style media="print">
+    body * {
+        visibility: hidden;
+    }
+    
+    #order-summary,
+    #order-summary * {
+        visibility: visible;
+    }
+    /* Center the table on the printed page */
+    
+    #order-summary {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        text-align: center;
+    }
+    /* Make the table fill the page width */
+    
+    #order-summary table {
+        width: 100%;
+    }
+</style>
+<div class="container-fluid px-0 top-banner" style="background: url('static/cart.png') no-repeat center;width:100%;
+        background-size: cover; padding: 16.875rem 0 9.375rem; min-height: 800px;">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8" style="padding-left: 20%;">
+                <div id="order-summary" id="printable-table">
+                    <h2>Order Summary</h2>
+                    <button class="btn btn-primary" id="print-button" style="margin-bottom: 2%;">Print</button>
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Item Name</th>
+                                <th>Quantity</th>
+                                <th>Price</th>
+                                <th>Total Price</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in cart_items %}
+                            <tr>
+                                <td>{{ item.name }}</td>
+                                <td>{{ item.quantity }}</td>
+                                <td>₹{{ item.price }}</td>
+                                <td>₹{{ item.totalPrice }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="3">Delivery Charges:</td>
+                                <td id="delivery-charges">₹{{delivery_charges}}</td>
+                            </tr>
+                            <tr>
+                                <td colspan="3">Total:</td>
+                                <td id="cart-total">{{ cart_total }}</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add an event listener to the print button
+        const printButton = document.getElementById('print-button');
+        printButton.addEventListener('click', function() {
+            // Hide the print button before printing
+            printButton.style.display = 'none';
+
+            // Trigger the print dialog
+            window.print();
+
+            // Show the print button again after printing
+            printButton.style.display = 'block';
+        });
+
+        // Retrieve cart data from localStorage
+        const cartTotal = localStorage.getItem('cartTotal');
+        const cartItemsJSON = localStorage.getItem('cartItems');
+        const cartItems = JSON.parse(cartItemsJSON);
+
+        // Calculate delivery charges based on the total value
+        let deliveryCharges = 0;
+        if (cartTotal) {
+            const totalValue = parseFloat(cartTotal.replace('₹', ''));
+            if (totalValue > 500) {
+                deliveryCharges = 20;
+            } else if (totalValue < 500) {
+                deliveryCharges = 40;
+            }
+
+            // Display delivery charges and updated cart total
+            const deliveryChargesCell = document.querySelector('#delivery-charges');
+            const cartTotalCell = document.querySelector('#cart-total');
+            deliveryChargesCell.textContent = `₹${deliveryCharges.toFixed(2)}`;
+            cartTotalCell.textContent = `₹${(totalValue + deliveryCharges).toFixed(2)}`;
+        }
+
+        // Display cart items
+        const orderTableBody = document.querySelector('table tbody');
+        if (cartItems) {
+            cartItems.forEach(item => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${item.name}</td>
+                    <td>${item.quantity}</td>
+                    <td>₹${item.price.toFixed(2)}</td>
+                    <td>₹${item.totalPrice.toFixed(2)}</td>
+                `;
+                orderTableBody.appendChild(row);
+            });
+        } else {
+            orderTableBody.innerHTML = '<tr><td colspan="4">No items selected.</td></tr>';
+        }
+
+        // Print the cart items and total to console for verification
+        console.log("Order items:", cartItems);
+        console.log("Cart total:", cartTotal);
+        console.log("Delivery charges:", deliveryCharges);
+    });
+</script>
+{% endblock %}
