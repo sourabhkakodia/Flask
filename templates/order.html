@@ -1,8 +1,8 @@
 {% extends "layout.html" %} {% block body %}
-<div class="container-fluid px-0 top-banner" style="background: url('static/cart.png') no-repeat center; width: 100%; background-size: cover; padding: 12.875rem 0 9.375rem; min-height: 800px;">
+<div class="container-fluid px-0 top-banner" style="background: url('static/cart.png') no-repeat center; background-size: cover; padding: 12.875rem 0 9.375rem; min-height: 800px;">
     <div class="container">
         <div class="row" style="margin-left: 10%;">
-            <h3 style="color: #e5f409; margin-bottom: 3%">Please note that the delivery charges for orders below ₹500 is ₹40 and above ₹500 is ₹20</h3>
+            <h3 style="color: #e5f409; margin-bottom: 3%"> Online payment option is coming soon. For now you can pay via QR code at the time of delivery</h3>
         </div>
     </div>
     <div class="container">
@@ -38,7 +38,7 @@
                         <input type="text" id="landmark" placeholder="Enter Nearby Landmark (Optional)" class="form-control" name="landmark">
                     </div>
                     <div class="md-9" style="width: 150%; padding-top: 4%; color: rgb(237, 241, 12)">
-                        <button type="submit" class="btn btn-success m-auto" style="border-radius: 7px; width: 50%;">Pay Now</button>
+                        <button type="submit" class="btn btn-success m-auto" style="border-radius: 7px; width: 50%;">Order Now</button>
                     </div>
                 </form>
             </div>
@@ -67,7 +67,7 @@
                         <tfoot>
                             <tr>
                                 <td colspan="3">Delivery Charges:</td>
-                                <td id="delivery-charges">₹{{ delivery_charges }}</td>
+                                <td id="delivery-charges">₹{{ deliveryCharges }}</td>
                             </tr>
                             <tr>
                                 <td colspan="3">Total:</td>
@@ -117,11 +117,11 @@
             cartItems.forEach(item => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                <td>${item.name}</td>
-                <td>${item.quantity}</td>
-                <td>₹${item.price.toFixed(2)}</td>
-                <td>₹${item.totalPrice.toFixed(2)}</td>
-                `;
+            <td>${item.name}</td>
+            <td>${item.quantity}</td>
+            <td>₹${item.price.toFixed(2)}</td>
+            <td>₹${item.totalPrice.toFixed(2)}</td>
+            `;
                 orderTableBody.appendChild(row);
             });
         } else {

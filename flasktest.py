@@ -8,6 +8,8 @@ from flask import jsonify
 
 # to run on ngrok command - ngrok http 5000
 
+
+# to add name of business in print order
 #json file
 try:
     with open("c:\\Users\\Sourabh kumar\\Desktop\\Flask\\config.json", "r") as c:
@@ -101,6 +103,23 @@ def items_all():
     data = Items.query.all()
     return render_template('items.html', params = params, data = data)
 
+
+@app.route('/search_items')
+def search_items():
+    query = request.args.get('query', '')
+    if query:
+        items = Items.query.filter(Items.Name.ilike(f"{query}%")).all()
+    else:
+        items = Items.query.all()
+    return jsonify([{
+        'id': item.Sno,
+        'name': item.Name,
+        'price': item.Price,
+        'image_url': item.image_url
+    } for item in items])
+
+
+
 @app.route('/create_order', methods=['POST'])
 def create_order():
     try:
@@ -130,7 +149,7 @@ def create_order():
             customer_email=customer_email,
             customer_address=customer_address,
             # customer_landmark = customer_landmark,
-            total_amount=float(cart_total.replace('₹', '')),
+            total_amount=float(cart_total.replace('₹', '')) + float(delivery_charges.replace('₹', '')),
             delivery_charges=float(delivery_charges.replace('₹', '')),
             order_date=datetime.now()
         )
@@ -341,9 +360,11 @@ def cash():
         email = request.form.get('email')
         address = request.form.get('address')
         landmark= request.form.get('landmark')
+        
+        order_date = datetime.now().strftime("%d %b %Y (%H:%M:%S)")
 
-        print("cartItems in session:", session.get('cartItems', '[]'))
-        print("cartTotal in session:", session.get('cartTotal', '₹0'))
+        #print("cartItems in session:", session.get('cartItems', '[]'))
+        #print("cartTotal in session:", session.get('cartTotal', '₹0'))
 
         # Retrieve cart items and total from session storage
         cartItems = json.loads(session.get('cartItems', '[]'))
@@ -355,7 +376,7 @@ def cash():
         deliveryCharges = 0
         if cartTotal:
             totalValue = float(cartTotal.replace("₹", ""))
-            if totalValue > 200 and totalValue <= 500:
+            if totalValue > 0 and totalValue <= 500:
                 deliveryCharges = 40
             elif totalValue > 500 and totalValue<= 1000:
                 deliveryCharges = 20
@@ -389,6 +410,7 @@ def cash():
                 <p><strong>Address:</strong> {address}</p>
                 <p><strong>Landmark:</strong> {landmark}</p>
                 <p><strong>Email:</strong> {email}</p>
+                <p><strong>Order Date:</strong> {order_date}</p>
 
                 <h2>Order Summary:</h2>
                 <table border="1">

@@ -2,34 +2,34 @@
 
 <body>
     <div class="container-fluid px-0 top-banner" style="background: url('') no-repeat center;width:100%;
-            background-size:cover; padding:8.875rem 0 9.375rem; min-height:800px;">
+        background-size:cover; padding:8.875rem 0 9.375rem; background-color: antiquewhite">
         <div class="container mt-5">
-            <div class="row">
-                <div class="col-md-8" style="width:80%">
+            <div class="row flex-md-row flex-column">
+                <div class="col-md-6 col-12 order-2 order-md-1 items-container">
                     <h2>Available Items</h2>
-                    <div class="card">
-                        <div class="card-body">
+
+                    <div class="card" style="max-width:100%">
+                        <div class="card-body" id="items-list">
                             {% for items in data %}
                             <div class="cart-item">
-                                <div class="item-details">
-                                    <img src="{{ items.image_url }}" alt="{{ items.Name }}">
-                                    <h5 class="item-name" style="margin-left:3%">{{items.Name}}</h5>
-                                    <p class="item-price" style="margin-left:6%">{{items.Price}}₹</p>
-                                    <input type="number" class="form-control quantity-input" value="1" min="1">
-                                    <button class="btn btn-primary add-to-cart">Add to Cart</button>
+                                <div class="item-details d-flex align-items-center">
+                                    <img src="{{ items.image_url }}" alt="{{ items.Name }}" class="item-image">
+                                    <h5 class="item-name ml-3">{{items.Name}}</h5>
+                                    <p class="item-price ml-3">{{items.Price}}₹</p>
+                                    <input type="number" class="form-control quantity-input ml-3" value="1" min="1">
+                                    <button class="btn btn-primary add-to-cart ml-3">Add to Cart</button>
                                 </div>
                             </div>
                             {% endfor %}
                         </div>
                     </div>
                 </div>
-                <div class="col-md-4" style="position:fixed; right:0">
-                    <h2>Your Cart</h2>
-                    <div class="card">
-                        <div class="cart-item">
-                            <div class="card-body" id="cart-items">
-                            </div>
-                        </div>
+
+                <div class="col-md-6 col-12 order-1 order-md-2 cart-container">
+                    <h2 style="margin-left:15%">Your Cart</h2>
+                    <input type="text" id="searchBar" placeholder="Search here..." class="form-control mb-3" style="margin-left:15%; margin-bottom:2%;width:70%">
+                    <div class="card" style="margin-left: 15%">
+                        <div class="card-body" id="cart-items"></div>
                         <div class="card-footer">
                             <h5>Total: <span id="cart-total">₹0</span></h5>
                             <a href="/order" class="btn btn-success btn-block buy-items">Buy Items</a>
@@ -39,116 +39,166 @@
             </div>
         </div>
     </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const cartItems = [];
+            const itemsList = document.getElementById('items-list');
+            const searchBar = document.getElementById('searchBar');
 
-            // Function to update the cart items and total
+            // Live search
+            searchBar.addEventListener('input', () => {
+                const query = searchBar.value;
+                fetch(`/search_items?query=${encodeURIComponent(query)}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        itemsList.innerHTML = '';
+                        data.forEach(item => {
+                            const itemHTML = `
+                                <div class="cart-item">
+                                    <div class="item-details d-flex align-items-center">
+                                        <img src="${item.image_url}" alt="${item.name}" class="item-image">
+                                        <h5 class="item-name ml-3">${item.name}</h5>
+                                        <p class="item-price ml-3">${item.price}₹</p>
+                                        <input type="number" class="form-control quantity-input ml-3" value="1" min="1">
+                                        <button class="btn btn-primary add-to-cart ml-3">Add to Cart</button>
+                                    </div>
+                                </div>`;
+                            itemsList.insertAdjacentHTML('beforeend', itemHTML);
+                        });
+                        attachCartListeners(); // reattach listeners after dynamic content update
+                    });
+            });
+
             function updateCart() {
                 const cartTotal = document.getElementById('cart-total');
                 const cartItemsDiv = document.getElementById('cart-items');
-
-                // Clear the cart
                 cartItemsDiv.innerHTML = '';
                 let total = 0;
-
-                // Add selected items to the cart
                 cartItems.forEach(item => {
                     const cartItemDiv = document.createElement('div');
-                    cartItemDiv.textContent = `${item.name} - Quantity: ${item.quantity} - Total: ₹${item.totalPrice.toFixed(2)}`;
+                    cartItemDiv.classList.add('d-flex', 'justify-content-between', 'align-items-center', 'mb-2');
+                    cartItemDiv.innerHTML = `
+                        <div>${item.name} - Quantity: ${item.quantity} - Total: ₹${item.totalPrice.toFixed(2)}</div>
+                        <button class="btn btn-danger btn-sm delete-item">Delete</button>
+                    `;
+                    cartItemDiv.querySelector('.delete-item').addEventListener('click', function() {
+                        removeFromCart(item.name);
+                    });
                     cartItemsDiv.appendChild(cartItemDiv);
-
-                    // Calculate the total
                     total += item.totalPrice;
                 });
-
                 cartTotal.textContent = `₹${total.toFixed(2)}`;
-
-                // Send updated cart information to the server
-                const cartData = {
-                    cartItems: cartItems,
-                    cartTotal: total.toFixed(2)
-                };
-
                 fetch('/update_cart', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        cartItems,
+                        cartTotal: total.toFixed(2)
+                    })
+                });
+            }
+
+            function removeFromCart(itemName) {
+                const itemIndex = cartItems.findIndex(item => item.name === itemName);
+                if (itemIndex !== -1) {
+                    cartItems.splice(itemIndex, 1);
+                    updateCart();
+                    fetch('/update_quantity', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
                         },
-                        body: JSON.stringify(cartData)
-                    })
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error('Failed to update cart');
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        console.log('Cart updated successfully:', data);
-                    })
-                    .catch(error => {
-                        console.error('Error updating cart:', error);
+                        body: JSON.stringify({
+                            name: itemName,
+                            quantity: 0
+                        })
                     });
+                }
             }
 
-
-            // Add an event listener to each "Add to Cart" button
-            const addToCartButtons = document.querySelectorAll('.add-to-cart');
-            addToCartButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    const itemName = button.parentElement.querySelector('h5').textContent;
-                    const itemPrice = parseFloat(button.parentElement.querySelector('p').textContent);
-                    const quantityInput = button.parentElement.querySelector('.quantity-input');
-                    const quantity = parseInt(quantityInput.value);
-
-                    if (!isNaN(quantity) && quantity > 0) {
-                        const existingCartItem = cartItems.find(item => item.name === itemName);
-
-                        if (existingCartItem) {
-                            // If the item is already in the cart, increase the quantity
-                            existingCartItem.quantity += quantity;
-                            existingCartItem.totalPrice += itemPrice * quantity;
-                        } else {
-                            // If it's a new item, add it to the cart with a default quantity of 1
-                            const newItem = {
-                                name: itemName,
-                                price: itemPrice,
-                                quantity: quantity,
-                                totalPrice: itemPrice * quantity,
-                            };
-                            cartItems.push(newItem);
-                        }
-
-                        updateCart();
-
-                        // Send a request to update the item quantity in the database
-                        fetch('/update_quantity', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify({
-                                name: itemName,
-                                quantity: quantity
-                            }),
-                        }).then(response => {
-                            if (response.ok) {
-                                // If the update is successful, you can perform any frontend updates you need.
-                                console.log('Item quantity in database updated.');
+            function attachCartListeners() {
+                const addToCartButtons = document.querySelectorAll('.add-to-cart');
+                addToCartButtons.forEach(button => {
+                    button.addEventListener('click', function() {
+                        const itemName = button.parentElement.querySelector('h5').textContent;
+                        const itemPrice = parseFloat(button.parentElement.querySelector('p').textContent);
+                        const quantity = parseInt(button.parentElement.querySelector('.quantity-input').value);
+                        if (!isNaN(quantity) && quantity > 0) {
+                            const existing = cartItems.find(item => item.name === itemName);
+                            if (existing) {
+                                existing.quantity += quantity;
+                                existing.totalPrice += itemPrice * quantity;
+                            } else {
+                                cartItems.push({
+                                    name: itemName,
+                                    price: itemPrice,
+                                    quantity,
+                                    totalPrice: itemPrice * quantity
+                                });
                             }
-                        });
-                    }
+                            updateCart();
+                            fetch('/update_quantity', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    name: itemName,
+                                    quantity
+                                })
+                            });
+                        }
+                    });
                 });
-            });
+            }
 
-            // Add an event listener to the "Buy Items" button
+            attachCartListeners();
+
             const buyItemsButton = document.querySelector('.buy-items');
-            buyItemsButton.addEventListener('click', function() {
-                const cartTotalValue = document.getElementById('cart-total').textContent;
-                localStorage.setItem('cartTotal', cartTotalValue);
-                localStorage.setItem('cartItems', JSON.stringify(cartItems));
+            buyItemsButton.addEventListener('click', function(event) {
+                if (cartItems.length === 0) {
+                    event.preventDefault();
+                    alert('Please add something to the cart before buying.');
+                } else {
+                    localStorage.setItem('cartTotal', document.getElementById('cart-total').textContent);
+                    localStorage.setItem('cartItems', JSON.stringify(cartItems));
+                }
             });
         });
     </script>
+
+    <style>
+        .top-banner {
+            padding: 4.5rem 0 4.5rem;
+            min-height: 600px;
+        }
+        
+        .item-image {
+            max-width: 50px;
+            max-height: 50px;
+        }
+        
+        @media (min-width: 768px) {
+            .items-container,
+            .cart-container {
+                flex: 0 0 50%;
+                max-width: 50%;
+            }
+        }
+        
+        @media (max-width: 767px) {
+            .cart-container {
+                width: 100%;
+                order: -1;
+                margin-bottom: 1rem;
+            }
+            .items-container {
+                width: 100%;
+            }
+        }
+    </style>
 </body>
 {% endblock %}

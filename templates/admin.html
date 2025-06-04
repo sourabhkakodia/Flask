@@ -1,65 +1,145 @@
-<!Doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 
 <head>
-    <title> Piyush Mini mart </title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Piyush Mini Mart</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename ='style.css')}}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        body {
+            font-size: 18px;
+            background-color: #b7c374;
+            margin: 0;
+            padding: 0;
+        }
+        
+        header {
+            background-color: #A82C48;
+            color: white;
+            padding: 10px 0;
+        }
+        
+        @media (max-width: 768px) {
+            header .col-md-3 {
+                text-align: center;
+                margin-bottom: 10px;
+            }
+            header .col-md-9 {
+                text-align: center;
+            }
+        }
+        
+        .logo {
+            max-width: 250px;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+            /* Center the logo */
+        }
+        
+        .main-content {
+            max-width: 550px;
+            margin: 100px auto;
+            background-color: #60cfdf;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            color: #333;
+        }
+        
+        .form-control {
+            width: 100%;
+            height: 40px;
+            font-size: 16px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        
+        .btn-success {
+            background-color: #31ba41;
+            border-color: #400fef;
+            color: white;
+            width: 100%;
+            height: 40px;
+            font-size: 18px;
+            border-radius: 7px;
+        }
+        
+        footer {
+            background-color: #A82C48;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+        
+        @media (max-width: 768px) {
+            .logo {
+                max-width: 200px;
+                /* Adjust logo size for smaller screens */
+            }
+            .main-content {
+                padding: 10px;
+            }
+        }
+    </style>
 </head>
 
-<body style="font-size: 18px; min-height:750px;">
+<body>
     <header>
         <div class="container-fluid" style="background: #A82C48;">
-            <div class="collapse navbar-collapse" id="navbarExample01">
-                <div class="row">
-                    <div class="col-md-3">
-                        <img src="{{ url_for('static', filename = 'mini mart logo.jpg')}}" width="250px" height="155px">
-                        </button>
-                    </div>
-                    <div class="col-md-9">
-                        <a href="/" style="float: right;margin-top: 20px; background-color:0c477f; border-color: 0c477f;" class="btn btn-primary">Main Website</a>
-                    </div>
+            <div class="row">
+                <div class="col-md-3">
+                    <img src="{{ url_for('static', filename='mini mart logo.jpg') }}" width="250px" height="155px">
                 </div>
-
+                <div class="col-md-9 text-right">
+                    <a href="/" class="btn btn-primary" style="margin-top: 20px; background-color: #0c477f; border-color: #0c477f;">Main Website</a>
+                </div>
             </div>
         </div>
     </header>
-    <div class="container-fluid">
-        <div class="msg" style="margin-left:42%; margin-top:1%; color:Red">{{msg}}</div>
-    </div>
-    <div class="container-fluid" id="main">
+
+
+    <div class="container main-content">
+        <div class="msg text-center">{{ msg }}</div>
+
         <form id="admin" action="/admin" method="post">
             <div class="form-group">
-                <i class="fa fa-user icon" style="color:white"></i>
-                <label for="username"> Username : </label>
-                <input type="text" class="form-control" placeholder="Enter your Username" id="username" name="username" style="color:black; width:100%;" required>
+                <label for="username"><i class="fa fa-user icon"></i> Username:</label>
+                <input type="text" class="form-control" placeholder="Enter your Username" id="username" name="username" required>
             </div>
             <div class="form-group">
-                <i class="fa fa-key icon" style="color:white; width:16px;"></i>
-                <label for="password"> Password :</label>
-                <input type="text" class="form-control" placeholder="Enter your Password" id="password" name="password" style="color:black; width:100%;" required>
+                <label for="password"><i class="fa fa-key icon"></i> Password:</label>
+                <input type="password" class="form-control" placeholder="Enter your Password" id="password" name="password" required>
             </div>
-            <!-- <div class="cb">
-                <i class="fa fa-save" style="color:white"></i>
-                <label for="remember"> Remember me</label>
-                <input type="checkbox" id="remember" name="remember">
-            </div> -->
             <div class="form-group">
-                <button class="btn btn-success m-auto" type="submit" style="width:100%; border-radius: 7px; margin-bottom: 10px; margin-top:3%">SignIn</button>
+                <button class="btn btn-success" type="submit">Sign In</button>
             </div>
         </form>
     </div>
-    <footer id="footer" class="text-center text-lg-start bg-light text-muted ">
-        <div class="text-center text-white p-4 " style="background-color:#A82C48; position:fixed; bottom:0; width:100%; color:white;">
-            This Website is Developed by: Sourabh Kakodia @All Rights Reserved
+
+    <footer>
+        <div class="container-fluid">
+            <p>This Website is Developed by: Sourabh Kakodia @ All Rights Reserved</p>
         </div>
     </footer>
+
     <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.3/jquery.validate.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.3/additional-methods.min.js"></script>
-    <script src="http://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
 </body>
 
 </html>
