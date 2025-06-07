@@ -34,9 +34,9 @@ app.config.update(
 )
 mail = Mail(app)
 if(local_server):
-    app.config["SQLALCHEMY_DATABASE_URI"] = params['local_uri']
+    app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get('LOCAL_URI')
 else:
-    app.config["SQLALCHEMY_DATABASE_URI"] = params['prod_uri']
+    app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get('PROD_URI')
 db = SQLAlchemy(app)
 
 #Query to enter customer information into database
