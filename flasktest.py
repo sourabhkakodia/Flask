@@ -5,6 +5,7 @@ import json
 from flask_mail import Mail, Message
 from datetime import datetime
 from flask import jsonify
+import os
 
 # to run on ngrok command - ngrok http 5000
 
@@ -28,8 +29,8 @@ app.config.update(
     MAIL_SERVER = 'smtp.gmail.com',
     MAIL_PORT = '465',
     MAIL_USE_SSL = True,
-    MAIL_USERNAME = params['gmail-user'],
-    MAIL_PASSWORD = params['gmail-password']
+    MAIL_USERNAME = os.environ.get('MAIL_USERNAME'),
+    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
 )
 mail = Mail(app)
 if(local_server):
@@ -89,7 +90,7 @@ def admin():
     if request.method=='POST':
         username=request.form.get('username')
         password=request.form.get('password')
-        if (username == params['admin_user'] and password == params['admin_password']):
+        if (username == os.environ.get['admin_user'] and password == os.environ.get['admin_password']):
             session['user'] = username
             return redirect('/adminpage')
         else:
