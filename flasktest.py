@@ -90,7 +90,7 @@ def admin():
     if request.method=='POST':
         username=request.form.get('username')
         password=request.form.get('password')
-        if (username == os.environ.get['admin_user'] and password == os.environ.get['admin_password']):
+        if (username == os.environ.get('admin_user') and password == os.environ.get('admin_password')):
             session['user'] = username
             return redirect('/adminpage')
         else:
