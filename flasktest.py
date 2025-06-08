@@ -466,6 +466,21 @@ def cash():
 
     return render_template('cash.html', params=params)
 
+
+from sqlalchemy import create_engine
+
+db_uri = 'postgresql://piyush_website_user:uPxXe3RXyYC0SzGj1562FW8D1ph9Onu7@dpg-d12bupje5dus73f53is0-a/piyush_website'
+engine = create_engine(db_uri)
+
+try:
+    with engine.connect() as conn:
+        result = conn.execute("SELECT 1")
+        print("Connection successful:", result.fetchone())
+except Exception as e:
+    print("Connection failed:", e)
+
+
+
 #Run the main app
 if __name__ == "__main__":
     app.run(debug=True)
