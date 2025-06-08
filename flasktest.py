@@ -203,7 +203,7 @@ def order():
 
 @app.route("/edit/<string:Sno>", methods=['GET', 'POST'])
 def edit(Sno):
-    if ('user' in session and session['user'] == params['admin_user']):
+    if ('user' in session and session['user'] == os.environ.get['admin_user']):
         if request.method == 'POST':
             P_name = request.form.get('Name')
             P_price = request.form.get('Price')
@@ -232,7 +232,7 @@ def review():
 
 @app.route("/delete/<string:Sno>", methods = ['GET', 'POST'])
 def delete(Sno):
-    if ('user' in session and session['user'] == params['admin_user']):
+    if ('user' in session and session['user'] == os.environ.get['admin_user']):
         items = Items.query.filter_by(Sno=Sno).first()
         db.session.delete(items)
         db.session.commit()
@@ -248,7 +248,7 @@ def logout():
 @app.route("/adminpage", methods=['GET', 'POST'])
 def adminpage():
     # Check if the user is authenticated (logged in)
-    if 'user' not in session or session['user'] != params['admin_user']:
+    if 'user' not in session or session['user'] != os.environ.get['admin_user']:
         return redirect('/admin')
 
     if request.method == 'POST':
