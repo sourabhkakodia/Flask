@@ -457,7 +457,7 @@ def cash():
 
         msg = Message(subject=subject, sender=sender, recipients=recipients)
         msg.html = email_body
-        import os
+        
         print("EMAIL:", os.environ.get("MAIL_USERNAME"))
         print("PASSWORD:", os.environ.get("MAIL_PASSWORD"))
 
