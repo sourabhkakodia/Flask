@@ -397,7 +397,7 @@ def cash():
         session['orderInfo'] = json.dumps(order_info)
 
         subject = 'New Order From ' + name
-        sender = params['gmail-user']
+        sender = os.environ.get('gmail-user')
         recipients = [sender]
 
         # Generate the HTML content for the email
