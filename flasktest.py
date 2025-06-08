@@ -13,7 +13,7 @@ import os
 # to add name of business in print order
 #json file
 try:
-    with open("c:\\Users\\Sourabh kumar\\Desktop\\Flask\\config.json", "r") as c:
+    with open("config.json", "r") as c:
         params = json.load(c)["params"]
 except FileNotFoundError:
     print("File not found.")
