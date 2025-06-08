@@ -29,6 +29,7 @@ app.config.update(
     MAIL_SERVER = 'smtp.gmail.com',
     MAIL_PORT = 587,
     MAIL_USE_TLS = True,
+    MAIL_USE_SSL = False,
     MAIL_USERNAME = os.environ.get('MAIL_USERNAME'),
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
 )
@@ -456,6 +457,10 @@ def cash():
 
         msg = Message(subject=subject, sender=sender, recipients=recipients)
         msg.html = email_body
+        import os
+        print("EMAIL:", os.environ.get("MAIL_USERNAME"))
+        print("PASSWORD:", os.environ.get("MAIL_PASSWORD"))
+
         mail.send(msg)
 
         # Clear the cart
