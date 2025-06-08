@@ -22,7 +22,7 @@ except json.decoder.JSONDecodeError as e:
 
 
 #email sending
-local_server=True
+local_server=False
 app = Flask(__name__)
 app.secret_key = 'super-secret-key'
 app.config.update(
