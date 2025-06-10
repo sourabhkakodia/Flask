@@ -126,7 +126,6 @@
                         const itemName = button.parentElement.querySelector('h5').textContent;
                         const itemPrice = parseFloat(button.parentElement.querySelector('p').textContent);
                         const quantity = parseInt(button.parentElement.querySelector('.quantity-input').value);
-
                         if (!isNaN(quantity) && quantity > 0) {
                             const existing = cartItems.find(item => item.name === itemName);
                             if (existing) {
@@ -140,35 +139,21 @@
                                     totalPrice: itemPrice * quantity
                                 });
                             }
-
                             updateCart();
-
-                            // ✅ FIXED: removed the semicolon before `.then(...)`
                             fetch('/update_quantity', {
-                                    method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/json'
-                                    },
-                                    body: JSON.stringify({
-                                        name: itemName,
-                                        quantity: quantity
-                                    })
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    name: itemName,
+                                    quantity: quantity
                                 })
-                                .then(response => {
-                                    if (response.ok) {
-                                        window.location.href = '/adminpage';
-                                    } else {
-                                        response.text().then(msg => alert('Update failed: ' + msg));
-                                    }
-                                })
-                                .catch(err => {
-                                    alert('Fetch error: ' + err);
-                                });
+                            });
                         }
                     });
                 });
             }
-
 
             attachCartListeners();
 
