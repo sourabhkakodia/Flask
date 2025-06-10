@@ -380,7 +380,7 @@ def cash():
             totalValue = float(cartTotal.replace("₹", ""))
             if totalValue < 400 :
                 flash("Sorry, You can Order above 400₹ only")
-                return redirect(url_for('/order'))
+                return redirect(url_for('order'))
             elif totalValue > 400 and totalValue<= 800:
                 deliveryCharges = 20
             else:
