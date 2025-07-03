@@ -62,15 +62,17 @@ class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     customer_name = db.Column(db.String(200), nullable=False)
     customer_phone = db.Column(db.Integer, nullable=True)
+    customer_email = db.Column(db.String(120), nullable=True)
     customer_address = db.Column(db.String(200), nullable=False)
     total_amount = db.Column(db.Integer, nullable=False)
     delivery_charges = db.Column(db.Integer, nullable=True)
     order_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
-    items = relationship('OrderItem', back_populates='order')
+    items = db.relationship('OrderItem', back_populates='order')
 
 
 class OrderItem(db.Model):
+    __tablename__ = 'order_item'
     id = db.Column(db.Integer, primary_key=True)
     order_id = db.Column(db.Integer, db.ForeignKey('order.id'), nullable=False)
     name = db.Column(db.String(200), nullable=False)
@@ -78,7 +80,7 @@ class OrderItem(db.Model):
     price = db.Column(db.Float, nullable=False)
     total_price = db.Column(db.Float, nullable=False)
 
-    order = relationship('Order', back_populates='items')
+    order = db.relationship('Order', back_populates='items')
 
 #site page related content
 @app.route("/")
@@ -176,7 +178,7 @@ def create_order():
     except Exception as e:
         # Handle exceptions, log the error, and redirect to an error page
         print(f"Error creating order: {str(e)}")
-        return redirect(url_for('error_page'))
+        return redirect(url_for('order'))
     
 @app.route("/order", methods=['GET', 'POST'])
 def order():
@@ -496,7 +498,11 @@ try:
 except Exception as e:
     print("Connection failed:", e)
 
-
+from flasktest import OrderItem  # or just `OrderItem` if in same file
 #Run the main app
+with app.app_context():
+    db.create_all()
+    print("✅ All tables created (if they didn't exist already).")
+
 if __name__ == "__main__":
     app.run(debug=True)
