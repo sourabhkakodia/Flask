@@ -14,6 +14,10 @@
             <div class="col-md-6 col-sm-12 mb-4">
                 <h2 style="color: #fff;">Enter Your Address Details</h2>
                 <form class="form-group" method="POST" action="{{ url_for('create_order') }}">
+                    <input type="hidden" id="cart_items_json" name="cart_items_json">
+                    <input type="hidden" id="cart_total" name="cart_total">
+                    <input type="hidden" id="delivery_charges" name="delivery_charges">
+
                     <div class="form-group">
                         <label for="name" style="color: #000;">Name:</label>
                         <input type="text" id="name" class="form-control" placeholder="Enter your Name" name="name" required>
@@ -93,13 +97,15 @@
     document.addEventListener('DOMContentLoaded', function() {
         const cartTotal = localStorage.getItem('cartTotal');
         const cartItemsJSON = localStorage.getItem('cartItems');
-        const cartItems = JSON.parse(cartItemsJSON);
+        const cartItems = JSON.parse(cartItemsJSON || '[]');
+
         console.log('Cart Total:', cartTotal);
         console.log('Cart Items:', cartItems);
 
         let deliveryCharges = 0;
         if (cartTotal) {
-            const totalValue = parseFloat(cartTotal.replace('₹', ''));
+            const totalValue = parseFloat(cartTotal.replace('₹', '')) || 0;
+
             if (totalValue >= 500) {
                 deliveryCharges = 20;
             } else if (totalValue < 500 && totalValue <= 1000) {
@@ -111,18 +117,38 @@
         }
 
         const orderTableBody = document.querySelector('#order-items-body');
-        if (cartItems) {
+        if (cartItems && orderTableBody) {
             cartItems.forEach(item => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td>${item.name}</td>
-                    <td>${item.quantity}</td>
-                    <td>₹${item.price.toFixed(2)}</td>
-                    <td>₹${item.totalPrice.toFixed(2)}</td>`;
+                <td>${item.name}</td>
+                <td>${item.quantity}</td>
+                <td>₹${item.price.toFixed(2)}</td>
+                <td>₹${item.totalPrice.toFixed(2)}</td>`;
                 orderTableBody.appendChild(row);
             });
-        } else {
+        } else if (orderTableBody) {
             orderTableBody.innerHTML = '<tr><td colspan="4">No items selected.</td></tr>';
+        }
+
+        // ✅ Add cart info into form hidden inputs before submit
+        const form = document.querySelector('form');
+        if (form) {
+            form.addEventListener('submit', function() {
+                const cartItemsInput = document.getElementById('cart_items_json');
+                const cartTotalInput = document.getElementById('cart_total');
+                const deliveryChargesInput = document.getElementById('delivery_charges');
+
+                if (cartItemsInput) {
+                    cartItemsInput.value = JSON.stringify(cartItems);
+                }
+                if (cartTotalInput) {
+                    cartTotalInput.value = cartTotal || '₹0';
+                }
+                if (deliveryChargesInput) {
+                    deliveryChargesInput.value = `₹${deliveryCharges.toFixed(2)}`;
+                }
+            });
         }
     });
 </script>
