@@ -123,42 +123,33 @@ def search_items():
     } for item in items])
 
 
-
 @app.route('/create_order', methods=['POST'])
 def create_order():
     try:
-        # Retrieve form data
         customer_name = request.form.get('name')
         customer_phone = request.form.get('phone')
         customer_email = request.form.get('email')
         customer_address = request.form.get('address')
-        # customer_landmark = request.form.get('landmark')
         cart_items_json = request.form.get('cart_items_json')
-
-        if not cart_items_json:
-            return "Cart items JSON data is missing", 400
-
-        try:
-            cart_items = json.loads(cart_items_json)
-        except json.JSONDecodeError as e:
-            return f"Error decoding cart items JSON: {str(e)}", 400
-
         cart_total = request.form.get('cart_total')
         delivery_charges = request.form.get('delivery_charges')
 
-        # Create a new order
+        if not cart_items_json or not cart_total or not delivery_charges:
+            return "Missing cart data", 400
+
+        cart_items = json.loads(cart_items_json)
+
+        # ✅ Create Order object
         order = Order(
             customer_name=customer_name,
             customer_phone=customer_phone,
             customer_email=customer_email,
             customer_address=customer_address,
-            # customer_landmark = customer_landmark,
-            total_amount=float(cart_total.replace('₹', '')) + float(delivery_charges.replace('₹', '')),
-            delivery_charges=float(delivery_charges.replace('₹', '')),
-            order_date=datetime.now()
+            total_amount=float(cart_total.replace('₹', '')),
+            delivery_charges=float(delivery_charges.replace('₹', ''))
         )
 
-        # Add order items
+        # ✅ Add each item to OrderItem
         for item in cart_items:
             order_item = OrderItem(
                 name=item['name'],
@@ -168,50 +159,37 @@ def create_order():
             )
             order.items.append(order_item)
 
-       # Save to the database
         db.session.add(order)
         db.session.commit()
 
-# Save order data to session
-        session['cartItems'] = json.dumps(cart_items)
-        session['cartTotal'] = cart_total
+        # ✅ Store data in session to pass to cash.html
         session['orderInfo'] = json.dumps({
             'cartItems': cart_items,
             'cartTotal': cart_total,
-            'deliveryCharges': delivery_charges
+            'deliveryCharges': float(delivery_charges.replace('₹', ''))
         })
 
-# Redirect to the cash page
+        # ✅ Email content
+        if customer_email:
+            subject = f'Order Confirmation - {customer_name}'
+            sender = os.environ.get('MAIL_USERNAME')
+            recipients = [sender]
+            body = f"New Order\n\nName: {customer_name}\nPhone: {customer_phone}\nAddress: {customer_address}\n\nItems:\n"
+            for item in cart_items:
+                body += f"{item['name']} - Qty: {item['quantity']} - ₹{item['totalPrice']}\n"
+            body += f"\nDelivery: ₹{delivery_charges}\nTotal: ₹{cart_total}"
+
+            msg = Message(subject=subject, sender=sender, recipients=recipients)
+            msg.body = body
+            mail.send(msg)
+
+        # ✅ Redirect to cash.html
         return redirect(url_for('cash'))
 
-
     except Exception as e:
-        # Handle exceptions, log the error, and redirect to an error page
-        print(f"Error creating order: {str(e)}")
-        return redirect(url_for('order'))
-    
-@app.route("/order", methods=['GET', 'POST'])
-def order():
-    if request.method == 'POST':
-        name = request.form.get('name')
-        phone = request.form.get('phone')
-        email = request.form.get('email')
-        address = request.form.get('address')
-        landmark = request.form.get('landmark')
+        print(f"Create order error: {e}")
+        return "Internal Server Error", 500
 
-        entry = Customer(name=name, phone=phone, email=email, address=address, landmark=landmark)
-        db.session.add(entry)
-        db.session.commit()
-
-        # Retrieve cart items and total from session storage
-        cartItems = json.loads(session.get('cartItems', '[]'))
-        cartTotal = session.get('cartTotal', '₹0')
-
-        customer = Customer.query.all()
-
-        return render_template('order.html', params=params, cartItems=cartItems, cartTotal=cartTotal, customer=customer)
-
-    return render_template('order.html', params=params)
 
 
 @app.route("/edit/<string:Sno>", methods=['GET', 'POST'])
@@ -358,141 +336,21 @@ def update_quantity():
     return 'Invalid request', 400
 
 
-@app.route("/cash", methods=['GET', 'POST'])
+@app.route("/cash", methods=['GET'])
 def cash():
-
-    # cart_items_json = session.get('cartItems', '[]')
-    # cart_items = json.loads(cart_items_json)
-    # cart_total = session.get('cartTotal', '₹0')
-
     order_info_json = session.get('orderInfo')
     if order_info_json:
         order_info = json.loads(order_info_json)
-        session.pop('orderInfo')  # clear after use
+        session.pop('orderInfo', None)  # Clear after use
     else:
-        order_info = {'cartItems': [], 'cartTotal': '₹0', 'deliveryCharges': 0}
-
-
-    # print("cartItems in session:", cart_items)
-    # print("cartTotal in session:", cart_total)
-
-    if request.method == 'POST':
-        name = request.form.get('name')
-        phone = request.form.get('phone')
-        email = request.form.get('email')
-        address = request.form.get('address')
-        landmark= request.form.get('landmark')
-        
-        order_date = datetime.now().strftime("%d %b %Y (%H:%M:%S)")
-
-        #print("cartItems in session:", session.get('cartItems', '[]'))
-        #print("cartTotal in session:", session.get('cartTotal', '₹0'))
-
-        # Retrieve cart items and total from session storage
-        cartItems = json.loads(session.get('cartItems', '[]'))
-        cartTotal = session.get('cartTotal', '₹0')
-
-        # print("Structure of cartItems:", cartItems)
-        
-        # Calculate delivery charges based on cart total
-        deliveryCharges = 0
-        if cartTotal:
-            totalValue = float(cartTotal.replace("₹", ""))
-            if totalValue < 400 :
-                flash("Sorry, You can Order above 400₹ only")
-                return redirect(url_for('order'))
-            elif totalValue > 400 and totalValue<= 800:
-                deliveryCharges = 20
-            else:
-                deliveryCharges = 0
-
-        # Update the cart total by adding delivery charges
-        cartTotalValue = totalValue + deliveryCharges
-        cartTotal = f'₹{cartTotalValue}'
-
-        # Save order information in session
         order_info = {
-            'cartItems': cartItems,
-            'cartTotal': cartTotal,
-            'deliveryCharges': deliveryCharges
+            'cartItems': [],
+            'cartTotal': '₹0',
+            'deliveryCharges': 0
         }
-        session['orderInfo'] = json.dumps(order_info)
-
-        subject = 'New Order From ' + name
-        sender = os.environ.get('gmail-user')
-        recipients = [sender]
-
-        # Generate the HTML content for the email
-        email_body = f'''
-            <html>
-            <head></head>
-            <body>
-                <h2>Customer Information:</h2>
-                <p><strong>Name:</strong> {name}</p>
-                <p><strong>Phone:</strong> {phone}</p>
-                <p><strong>Address:</strong> {address}</p>
-                <p><strong>Landmark:</strong> {landmark}</p>
-                <p><strong>Email:</strong> {email}</p>
-                <p><strong>Order Date:</strong> {order_date}</p>
-
-                <h2>Order Summary:</h2>
-                <table border="1">
-                    <thead>
-                        <tr>
-                            <th>Item Name</th>
-                            <th>Quantity</th>
-                            <th>Price</th>
-                            <th>Total Price</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-        '''
-
-        for dat in cartItems:
-            # print("Processing item:", dat)
-            email_body += f'''
-                <tr>
-                    <td>{dat['name']}</td>
-                    <td>{dat['quantity']}</td>
-                    <td>₹{dat['price']}</td>
-                    <td>₹{dat['totalPrice']}</td>
-                </tr>
-            '''
-
-        email_body += f'''
-                    </tbody>
-                    <tfoot>
-                        <tr>
-                            <td colspan="3">Delivery Charges:</td>
-                            <td>₹{deliveryCharges}</td>
-                        </tr>
-                        <tr>
-                            <td colspan="3">Total:</td>
-                            <td>{cartTotal}</td>
-                        </tr>
-                    </tfoot>
-                </table>
-            </body>
-            </html>
-        '''
-
-        msg = Message(subject=subject, sender=sender, recipients=recipients)
-        msg.html = email_body
-        
-        print("EMAIL:", os.environ.get("MAIL_USERNAME"))
-        print("PASSWORD:", os.environ.get("MAIL_PASSWORD"))
-
-        mail.send(msg)
-
-        # Clear the cart
-        session['cartItems'] = '[]'
-        session['cartTotal'] = '₹0'
-
-        session['orderInfo'] = json.dumps(order_info)
-        return redirect(url_for('cash'))
-
 
     return render_template('cash.html', params=params, order_info=order_info)
+
 
 
 
