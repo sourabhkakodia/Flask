@@ -168,12 +168,22 @@ def create_order():
             )
             order.items.append(order_item)
 
-        # Save to the database
+       # Save to the database
         db.session.add(order)
         db.session.commit()
 
-        # Redirect to the cash page
+# Save order data to session
+        session['cartItems'] = json.dumps(cart_items)
+        session['cartTotal'] = cart_total
+        session['orderInfo'] = json.dumps({
+            'cartItems': cart_items,
+            'cartTotal': cart_total,
+            'deliveryCharges': delivery_charges
+        })
+
+# Redirect to the cash page
         return redirect(url_for('cash'))
+
 
     except Exception as e:
         # Handle exceptions, log the error, and redirect to an error page

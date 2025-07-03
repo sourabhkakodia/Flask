@@ -65,23 +65,18 @@
                                 </tr>
                             </thead>
                             <tbody id="order-items-body">
-                                {% for item in cart_items %}
                                 <tr>
-                                    <td>{{ item.name }}</td>
-                                    <td>{{ item.quantity }}</td>
-                                    <td>₹{{ item.price }}</td>
-                                    <td>₹{{ item.totalPrice }}</td>
+                                    <td colspan="4">Loading...</td>
                                 </tr>
-                                {% endfor %}
                             </tbody>
                             <tfoot>
                                 <tr>
                                     <td colspan="3"><strong>Delivery Charges:</strong></td>
-                                    <td id="delivery-charges">₹{{ deliveryCharges }}</td>
+                                    <td id="delivery-charges">₹0</td>
                                 </tr>
                                 <tr>
                                     <td colspan="3"><strong>Total:</strong></td>
-                                    <td id="cart-total">{{ cartTotal }}</td>
+                                    <td id="cart-total">₹0</td>
                                 </tr>
                             </tfoot>
                         </table>
@@ -95,60 +90,43 @@
 <!-- Script for Cart Handling -->
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const cartTotal = localStorage.getItem('cartTotal');
-        const cartItemsJSON = localStorage.getItem('cartItems');
-        const cartItems = JSON.parse(cartItemsJSON || '[]');
-
-        console.log('Cart Total:', cartTotal);
-        console.log('Cart Items:', cartItems);
+        const cartTotal = localStorage.getItem('cartTotal') || '₹0';
+        const cartItemsJSON = localStorage.getItem('cartItems') || '[]';
+        const cartItems = JSON.parse(cartItemsJSON);
 
         let deliveryCharges = 0;
-        if (cartTotal) {
-            const totalValue = parseFloat(cartTotal.replace('₹', '')) || 0;
+        const totalValue = parseFloat(cartTotal.replace('₹', '')) || 0;
 
-            if (totalValue >= 500) {
-                deliveryCharges = 20;
-            } else if (totalValue < 500 && totalValue <= 1000) {
-                deliveryCharges = 40;
-            }
-
-            document.querySelector('#delivery-charges').textContent = `₹${deliveryCharges.toFixed(2)}`;
-            document.querySelector('#cart-total').textContent = `₹${(totalValue + deliveryCharges).toFixed(2)}`;
+        if (totalValue >= 500) {
+            deliveryCharges = 20;
+        } else if (totalValue < 500 && totalValue > 0) {
+            deliveryCharges = 40;
         }
 
-        const orderTableBody = document.querySelector('#order-items-body');
-        if (cartItems && orderTableBody) {
+        document.getElementById('delivery_charges').value = `₹${deliveryCharges}`;
+        document.getElementById('cart_total').value = `₹${(totalValue + deliveryCharges).toFixed(2)}`;
+        document.getElementById('cart_items_json').value = JSON.stringify(cartItems);
+
+        const cartTotalElement = document.getElementById('cart-total');
+        const deliveryChargesElement = document.getElementById('delivery-charges');
+        const orderItemsBody = document.getElementById('order-items-body');
+
+        cartTotalElement.textContent = `₹${(totalValue + deliveryCharges).toFixed(2)}`;
+        deliveryChargesElement.textContent = `₹${deliveryCharges.toFixed(2)}`;
+
+        orderItemsBody.innerHTML = '';
+        if (cartItems.length > 0) {
             cartItems.forEach(item => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                <td>${item.name}</td>
-                <td>${item.quantity}</td>
-                <td>₹${item.price.toFixed(2)}</td>
-                <td>₹${item.totalPrice.toFixed(2)}</td>`;
-                orderTableBody.appendChild(row);
+                    <td>${item.name}</td>
+                    <td>${item.quantity}</td>
+                    <td>₹${item.price.toFixed(2)}</td>
+                    <td>₹${item.totalPrice.toFixed(2)}</td>`;
+                orderItemsBody.appendChild(row);
             });
-        } else if (orderTableBody) {
-            orderTableBody.innerHTML = '<tr><td colspan="4">No items selected.</td></tr>';
-        }
-
-        // ✅ Add cart info into form hidden inputs before submit
-        const form = document.querySelector('form');
-        if (form) {
-            form.addEventListener('submit', function() {
-                const cartItemsInput = document.getElementById('cart_items_json');
-                const cartTotalInput = document.getElementById('cart_total');
-                const deliveryChargesInput = document.getElementById('delivery_charges');
-
-                if (cartItemsInput) {
-                    cartItemsInput.value = JSON.stringify(cartItems);
-                }
-                if (cartTotalInput) {
-                    cartTotalInput.value = cartTotal || '₹0';
-                }
-                if (deliveryChargesInput) {
-                    deliveryChargesInput.value = `₹${deliveryCharges.toFixed(2)}`;
-                }
-            });
+        } else {
+            orderItemsBody.innerHTML = '<tr><td colspan="4">No items selected.</td></tr>';
         }
     });
 </script>
