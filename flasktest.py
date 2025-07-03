@@ -123,7 +123,7 @@ def search_items():
     } for item in items])
 
 
-@app.route('/create_order', methods=['POST'])
+@app.route('/order', methods=['POST'])
 def create_order():
     try:
         customer_name = request.form.get('name')
