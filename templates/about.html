@@ -1,14 +1,23 @@
 {% extends "layout.html" %} {% block body %}
 
-<div class="container-fluid px-0 top-banner" style="background: url('static/information.jpg') no-repeat center;width:100%;
-        background-size:cover;padding:13.875rem 0 9.375rem; min-height:800px;">
-    <div class="container" style="width:34%; margin-left:15%;" !important>
-        <h2 style="font-size: 50px;">Piyush Mini Mart</h2>
-        <p style="font-size:22px;">{{params['about-owner']}} </p>
-    </div>
-    <div class="container" style="width:33.5%; margin-right:15%;" !important>
-        <h2 style="font-size: 50px;">About the Developer</h2>
-        <p style="font-size:22px;">{{params['about-dev']}} </p>
+<div class="container-fluid px-0 top-banner about-banner">
+
+
+    <div class="container text-white">
+        <div class="row justify-content-center text-center text-md-start g-5">
+
+            <div class="col-12 col-md-6">
+                <h2 class="display-5">Piyush Mini Mart</h2>
+                <p style="font-size: 1.25rem;">{{ params['about-owner'] }}</p>
+            </div>
+
+            <div class="col-12 col-md-6">
+                <h2 class="display-5">About the Developer</h2>
+                <p style="font-size: 1.25rem;">{{ params['about-dev'] }}</p>
+            </div>
+
+        </div>
     </div>
 </div>
+
 {% endblock %}

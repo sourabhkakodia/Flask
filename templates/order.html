@@ -1,26 +1,29 @@
 {% extends "layout.html" %} {% block body %}
-<div class="container-fluid px-0 top-banner" style="background: url('static/cart.png') no-repeat center; background-size: cover; padding: 12.875rem 0 9.375rem; min-height: 800px;">
+
+<div class="container-fluid px-0 top-banner cart-banner">
+
     <div class="container">
-        <div class="row" style="margin-left: 10%;">
-            <h3 style="color: #e5f409; margin-bottom: 3%"> Online payment option is coming soon. For now you can pay via QR code at the time of delivery</h3>
+        <div class="row text-center mb-4">
+            <div class="col-12">
+                <h3 style="color: #e5f409;">Online payment option is coming soon. For now you can pay via QR code at the time of delivery</h3>
+            </div>
         </div>
-    </div>
-    <div class="container">
+
         <div class="row">
-            <div class="col-md-6">
-                <h2>Enter Your Address Details</h2>
+            <!-- Address Form -->
+            <div class="col-md-6 col-sm-12 mb-4">
+                <h2 style="color: #fff;">Enter Your Address Details</h2>
                 <form class="form-group" method="POST" action="/cash">
-                    <div class="md-9" style="width: 150%; color: rgb(237, 241, 12)">
-                        <label for="name" style="color: rgb(0, 0, 0)">Name:</label>
-                        <input type="text" id="name" placeholder="Enter your Name" class="form-control" name="name" required>
-                        <h5 class="error" for="name"></h5>
+                    <div class="form-group">
+                        <label for="name" style="color: #000;">Name:</label>
+                        <input type="text" id="name" class="form-control" placeholder="Enter your Name" name="name" required>
                     </div>
-                    <div class="md-9" style="width: 150%; color: rgb(0, 0, 0)">
-                        <label for="phone" style="color: rgb(0, 0, 0)">Phone No.:</label>
-                        <input type="text" id="phone" placeholder="Enter your Phone No." class="form-control" name="phone" required>
+                    <div class="form-group">
+                        <label for="phone" style="color: #000;">Phone No.:</label>
+                        <input type="text" id="phone" class="form-control" placeholder="Enter your Phone No." name="phone" required>
                     </div>
-                    <div class="md-9" style="width: 150%; padding-top: 2%; color: rgb(237, 241, 12)">
-                        <label for="address" style="color: rgb(0, 0, 0)">Village:</label>
+                    <div class="form-group">
+                        <label for="address" style="color: #000;">Village:</label>
                         <select name="address" id="address" class="form-control">
                             <option value="">Select Village</option>
                             <option value="bachini">Bachini</option>
@@ -29,70 +32,71 @@
                             <option value="nangle">Nangle Harnath</option>
                         </select>
                     </div>
-                    <div class="md-9" style="width: 150%; padding-top: 2%; color: rgb(237, 241, 12)">
-                        <label for="email" style="color: rgb(0, 0, 0)">E-mail (Optional):</label>
-                        <input type="text" id="email" placeholder="Enter your E-mail (Optional)" class="form-control" name="email">
+                    <div class="form-group">
+                        <label for="email" style="color: #000;">E-mail (Optional):</label>
+                        <input type="email" id="email" class="form-control" placeholder="Enter your E-mail" name="email">
                     </div>
-                    <div class="md-9" style="width: 150%; padding-top: 2%; color: rgb(237, 241, 12)">
-                        <label for="landmark" style="color: rgb(0, 0, 0)">Nearby Landmark(Optional):</label>
-                        <input type="text" id="landmark" placeholder="Enter Nearby Landmark (Optional)" class="form-control" name="landmark">
+                    <div class="form-group">
+                        <label for="landmark" style="color: #000;">Nearby Landmark (Optional):</label>
+                        <input type="text" id="landmark" class="form-control" placeholder="Enter Nearby Landmark" name="landmark">
                     </div>
-                    <div class="md-9" style="width: 150%; padding-top: 4%; color: rgb(237, 241, 12)">
-                        <button type="submit" class="btn btn-success m-auto" style="border-radius: 7px; width: 50%;">Order Now</button>
+                    <div class="form-group text-center">
+                        <button type="submit" class="btn btn-success" style="border-radius: 7px; width: 60%;">Order Now</button>
                     </div>
                 </form>
             </div>
-            <div class="col-md-6">
-                <div id="order-summary">
+
+            <!-- Order Summary -->
+            <div class="col-md-6 col-sm-12">
+                <div id="order-summary" class="bg-white p-3 rounded shadow-sm">
                     <h2>Order Summary</h2>
-                    <table class="table table-bordered">
-                        <thead>
-                            <tr>
-                                <th>Item Name</th>
-                                <th>Quantity</th>
-                                <th>Price</th>
-                                <th>Total Price</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for item in cart_items %}
-                            <tr>
-                                <td>{{ item.name }}</td>
-                                <td>{{ item.quantity }}</td>
-                                <td>₹{{ item.price }}</td>
-                                <td>₹{{ item.totalPrice }}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                        <tfoot>
-                            <tr>
-                                <td colspan="3">Delivery Charges:</td>
-                                <td id="delivery-charges">₹{{ deliveryCharges }}</td>
-                            </tr>
-                            <tr>
-                                <td colspan="3">Total:</td>
-                                <td id="cart-total">{{ cartTotal }}</td>
-                            </tr>
-                        </tfoot>
-                    </table>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Item Name</th>
+                                    <th>Quantity</th>
+                                    <th>Price</th>
+                                    <th>Total Price</th>
+                                </tr>
+                            </thead>
+                            <tbody id="order-items-body">
+                                {% for item in cart_items %}
+                                <tr>
+                                    <td>{{ item.name }}</td>
+                                    <td>{{ item.quantity }}</td>
+                                    <td>₹{{ item.price }}</td>
+                                    <td>₹{{ item.totalPrice }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="3"><strong>Delivery Charges:</strong></td>
+                                    <td id="delivery-charges">₹{{ deliveryCharges }}</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="3"><strong>Total:</strong></td>
+                                    <td id="cart-total">{{ cartTotal }}</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
+<!-- Script for Cart Handling -->
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Retrieve cart data from localStorage
         const cartTotal = localStorage.getItem('cartTotal');
         const cartItemsJSON = localStorage.getItem('cartItems');
         const cartItems = JSON.parse(cartItemsJSON);
-
-        // Add console.log statements to print the cartTotal and cartItems
         console.log('Cart Total:', cartTotal);
         console.log('Cart Items:', cartItems);
 
-        // Calculate delivery charges based on the total value
         let deliveryCharges = 0;
         if (cartTotal) {
             const totalValue = parseFloat(cartTotal.replace('₹', ''));
@@ -100,28 +104,21 @@
                 deliveryCharges = 20;
             } else if (totalValue < 500 && totalValue <= 1000) {
                 deliveryCharges = 40;
-            } else {
-                deliveryCharges = 0;
             }
 
-            // Display delivery charges and updated cart total
-            const deliveryChargesCell = document.querySelector('#delivery-charges');
-            const cartTotalCell = document.querySelector('#cart-total');
-            deliveryChargesCell.textContent = `₹${deliveryCharges.toFixed(2)}`;
-            cartTotalCell.textContent = `₹${(totalValue + deliveryCharges).toFixed(2)}`;
+            document.querySelector('#delivery-charges').textContent = `₹${deliveryCharges.toFixed(2)}`;
+            document.querySelector('#cart-total').textContent = `₹${(totalValue + deliveryCharges).toFixed(2)}`;
         }
 
-        // Display cart items
-        const orderTableBody = document.querySelector('table tbody');
+        const orderTableBody = document.querySelector('#order-items-body');
         if (cartItems) {
             cartItems.forEach(item => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-            <td>${item.name}</td>
-            <td>${item.quantity}</td>
-            <td>₹${item.price.toFixed(2)}</td>
-            <td>₹${item.totalPrice.toFixed(2)}</td>
-            `;
+                    <td>${item.name}</td>
+                    <td>${item.quantity}</td>
+                    <td>₹${item.price.toFixed(2)}</td>
+                    <td>₹${item.totalPrice.toFixed(2)}</td>`;
                 orderTableBody.appendChild(row);
             });
         } else {

@@ -349,9 +349,17 @@ def update_quantity():
 @app.route("/cash", methods=['GET', 'POST'])
 def cash():
 
-    cart_items_json = session.get('cartItems', '[]')
-    cart_items = json.loads(cart_items_json)
-    cart_total = session.get('cartTotal', '₹0')
+    # cart_items_json = session.get('cartItems', '[]')
+    # cart_items = json.loads(cart_items_json)
+    # cart_total = session.get('cartTotal', '₹0')
+
+    order_info_json = session.get('orderInfo')
+    if order_info_json:
+        order_info = json.loads(order_info_json)
+        session.pop('orderInfo')  # clear after use
+    else:
+        order_info = {'cartItems': [], 'cartTotal': '₹0', 'deliveryCharges': 0}
+
 
     # print("cartItems in session:", cart_items)
     # print("cartTotal in session:", cart_total)
@@ -468,9 +476,12 @@ def cash():
         session['cartItems'] = '[]'
         session['cartTotal'] = '₹0'
 
-        return render_template('cash.html', params=params, order_info=order_info)
+        session['orderInfo'] = json.dumps(order_info)
+        return redirect(url_for('cash'))
 
-    return render_template('cash.html', params=params)
+
+    return render_template('cash.html', params=params, order_info=order_info)
+
 
 
 from sqlalchemy import create_engine
