@@ -366,7 +366,6 @@ try:
 except Exception as e:
     print("Connection failed:", e)
 
-from flasktest import OrderItem  # or just `OrderItem` if in same file
 #Run the main app
 with app.app_context():
     db.create_all()
