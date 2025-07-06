@@ -41,134 +41,145 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const cartItems = [];
-            const itemsList = document.getElementById('items-list');
-            const searchBar = document.getElementById('searchBar');
+    document.addEventListener('DOMContentLoaded', function() {
+        const cartItems = [];
+        const itemsList = document.getElementById('items-list');
+        const searchBar = document.getElementById('searchBar');
 
-            // Live search
-            searchBar.addEventListener('input', () => {
-                const query = searchBar.value;
-                fetch(`/search_items?query=${encodeURIComponent(query)}`)
-                    .then(res => res.json())
-                    .then(data => {
-                        itemsList.innerHTML = '';
-                        data.forEach(item => {
-                            const itemHTML = `
-                                <div class="cart-item">
-                                    <div class="item-details d-flex align-items-center">
-                                        <img src="${item.image_url}" alt="${item.name}" class="item-image">
-                                        <h5 class="item-name ml-3">${item.name}</h5>
-                                        <p class="item-price ml-3">${item.price}₹</p>
-                                        <input type="number" class="form-control quantity-input ml-3" value="1" min="1">
-                                        <button class="btn btn-primary add-to-cart ml-3">Add to Cart</button>
-                                    </div>
-                                </div>`;
-                            itemsList.insertAdjacentHTML('beforeend', itemHTML);
-                        });
-                        attachCartListeners(); // reattach listeners after dynamic content update
+        // Live search
+        searchBar.addEventListener('input', () => {
+            const query = searchBar.value;
+            fetch(`/search_items?query=${encodeURIComponent(query)}`)
+                .then(res => res.json())
+                .then(data => {
+                    itemsList.innerHTML = '';
+                    data.forEach(item => {
+                        const itemHTML = `
+                            <div class="cart-item">
+                                <div class="item-details d-flex align-items-center">
+                                    <img src="${item.image_url}" alt="${item.name}" class="item-image">
+                                    <h5 class="item-name ml-3">${item.name}</h5>
+                                    <p class="item-price ml-3">${item.price}₹</p>
+                                    <input type="number" class="form-control quantity-input ml-3" value="1" min="1">
+                                    <button class="btn btn-primary add-to-cart ml-3">Add to Cart</button>
+                                </div>
+                            </div>`;
+                        itemsList.insertAdjacentHTML('beforeend', itemHTML);
                     });
-            });
-
-            function updateCart() {
-                const cartTotal = document.getElementById('cart-total');
-                const cartItemsDiv = document.getElementById('cart-items');
-                cartItemsDiv.innerHTML = '';
-                let total = 0;
-                cartItems.forEach(item => {
-                    const cartItemDiv = document.createElement('div');
-                    cartItemDiv.classList.add('d-flex', 'justify-content-between', 'align-items-center', 'mb-2');
-                    cartItemDiv.innerHTML = `
-                        <div>${item.name} - Quantity: ${item.quantity} - Total: ₹${item.totalPrice.toFixed(2)}</div>
-                        <button class="btn btn-danger btn-sm delete-item">Delete</button>
-                    `;
-                    cartItemDiv.querySelector('.delete-item').addEventListener('click', function() {
-                        removeFromCart(item.name);
-                    });
-                    cartItemsDiv.appendChild(cartItemDiv);
-                    total += item.totalPrice;
+                    attachCartListeners(); // reattach listeners after dynamic content update
                 });
-                cartTotal.textContent = `₹${total.toFixed(2)}`;
+        });
+
+        function updateCart() {
+            const cartTotal = document.getElementById('cart-total');
+            const cartItemsDiv = document.getElementById('cart-items');
+            cartItemsDiv.innerHTML = '';
+            let total = 0;
+            cartItems.forEach(item => {
+                const cartItemDiv = document.createElement('div');
+                cartItemDiv.classList.add('d-flex', 'justify-content-between', 'align-items-center', 'mb-2');
+                cartItemDiv.innerHTML = `
+                    <div>${item.name} - Quantity: ${item.quantity} - Total: ₹${item.totalPrice.toFixed(2)}</div>
+                    <button class="btn btn-danger btn-sm delete-item">Delete</button>
+                `;
+                cartItemDiv.querySelector('.delete-item').addEventListener('click', function() {
+                    removeFromCart(item.name);
+                });
+                cartItemsDiv.appendChild(cartItemDiv);
+                total += item.totalPrice;
+            });
+            cartTotal.textContent = `₹${total.toFixed(2)}`;
+        }
+
+        function removeFromCart(itemName) {
+            const itemIndex = cartItems.findIndex(item => item.name === itemName);
+            if (itemIndex !== -1) {
+                cartItems.splice(itemIndex, 1);
+                updateCart();
+                fetch('/update_quantity', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        name: itemName,
+                        quantity: 0
+                    })
+                });
+            }
+        }
+
+        function attachCartListeners() {
+            const addToCartButtons = document.querySelectorAll('.add-to-cart');
+            addToCartButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const itemName = button.parentElement.querySelector('h5').textContent;
+                    const itemPrice = parseFloat(button.parentElement.querySelector('p').textContent);
+                    const quantity = parseInt(button.parentElement.querySelector('.quantity-input').value);
+                    if (!isNaN(quantity) && quantity > 0) {
+                        const existing = cartItems.find(item => item.name === itemName);
+                        if (existing) {
+                            existing.quantity += quantity;
+                            existing.totalPrice += itemPrice * quantity;
+                        } else {
+                            cartItems.push({
+                                name: itemName,
+                                price: itemPrice,
+                                quantity,
+                                totalPrice: itemPrice * quantity
+                            });
+                        }
+                        updateCart();
+                        fetch('/update_quantity', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                name: itemName,
+                                quantity: quantity
+                            })
+                        });
+                    }
+                });
+            });
+        }
+
+        attachCartListeners();
+
+        const buyItemsButton = document.querySelector('.buy-items');
+        buyItemsButton.addEventListener('click', function(event) {
+            if (cartItems.length === 0) {
+                event.preventDefault();
+                alert('Please add something to the cart before buying.');
+            } else {
+                const total = cartItems.reduce((sum, item) => sum + item.totalPrice, 0).toFixed(2);
+                localStorage.setItem('cartTotal', `₹${total}`);
+                localStorage.setItem('cartItems', JSON.stringify(cartItems));
+
+                // ✅ Send cart to backend before redirect
                 fetch('/update_cart', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        cartItems,
-                        cartTotal: total.toFixed(2)
+                        cartItems: cartItems,
+                        cartTotal: total
                     })
+                }).then(response => {
+                    if (response.ok) {
+                        window.location.href = "/order"; // ✅ only redirect after syncing
+                    } else {
+                        alert("Failed to sync cart with server.");
+                    }
                 });
+
+                event.preventDefault(); // prevent normal <a> navigation
             }
-
-            function removeFromCart(itemName) {
-                const itemIndex = cartItems.findIndex(item => item.name === itemName);
-                if (itemIndex !== -1) {
-                    cartItems.splice(itemIndex, 1);
-                    updateCart();
-                    fetch('/update_quantity', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            name: itemName,
-                            quantity: 0
-                        })
-                    });
-                }
-            }
-
-            function attachCartListeners() {
-                const addToCartButtons = document.querySelectorAll('.add-to-cart');
-                addToCartButtons.forEach(button => {
-                    button.addEventListener('click', function() {
-                        const itemName = button.parentElement.querySelector('h5').textContent;
-                        const itemPrice = parseFloat(button.parentElement.querySelector('p').textContent);
-                        const quantity = parseInt(button.parentElement.querySelector('.quantity-input').value);
-                        if (!isNaN(quantity) && quantity > 0) {
-                            const existing = cartItems.find(item => item.name === itemName);
-                            if (existing) {
-                                existing.quantity += quantity;
-                                existing.totalPrice += itemPrice * quantity;
-                            } else {
-                                cartItems.push({
-                                    name: itemName,
-                                    price: itemPrice,
-                                    quantity,
-                                    totalPrice: itemPrice * quantity
-                                });
-                            }
-                            updateCart();
-                            fetch('/update_quantity', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json'
-                                },
-                                body: JSON.stringify({
-                                    name: itemName,
-                                    quantity: quantity
-                                })
-                            });
-                        }
-                    });
-                });
-            }
-
-            attachCartListeners();
-
-            const buyItemsButton = document.querySelector('.buy-items');
-            buyItemsButton.addEventListener('click', function(event) {
-                if (cartItems.length === 0) {
-                    event.preventDefault();
-                    alert('Please add something to the cart before buying.');
-                } else {
-                    localStorage.setItem('cartTotal', document.getElementById('cart-total').textContent);
-                    localStorage.setItem('cartItems', JSON.stringify(cartItems));
-                }
-            });
         });
-    </script>
+    });
+</script>
 
     <style>
         .top-banner {
